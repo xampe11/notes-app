@@ -2,57 +2,49 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { setAuth, logout } from '@/redux/authSlice';
+import { apiRequest, getQueryFn } from '@/lib/queryClient';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
   const { isAuthenticated, user, token } = useSelector((state: RootState) => state.auth);
+  const queryClient = useQueryClient();
   
   // On initial load, check if token exists in localStorage
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token && !isAuthenticated) {
-      // Fetch user data with token
-      fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Failed to authenticate');
-          }
-          return res.json();
-        })
-        .then(userData => {
-          dispatch(setAuth({
-            isAuthenticated: true,
-            user: userData,
-            token,
-          }));
-        })
-        .catch(() => {
-          // If token is invalid, remove it
-          localStorage.removeItem('auth_token');
-        });
+    const storedToken = localStorage.getItem('auth_token');
+    if (storedToken && !isAuthenticated) {
+      fetchUserProfile();
     }
   }, [dispatch, isAuthenticated]);
   
+  // Fetch user profile with token
+  const fetchUserProfile = async () => {
+    try {
+      const userData = await apiRequest('/api/auth/me', {
+        method: 'GET'
+      });
+      
+      dispatch(setAuth({
+        isAuthenticated: true,
+        user: userData,
+        token: localStorage.getItem('auth_token') || '',
+      }));
+      
+      return userData;
+    } catch (error) {
+      // If token is invalid, remove it
+      localStorage.removeItem('auth_token');
+      return null;
+    }
+  };
+  
   // Login function
   const login = async (username: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
+    const data = await apiRequest('/api/auth/login', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ username, password }),
     });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Login failed');
-    }
-    
-    const data = await response.json();
     
     // Save token to localStorage
     localStorage.setItem('auth_token', data.token);
@@ -64,32 +56,35 @@ export const useAuth = () => {
       token: data.token,
     }));
     
+    // Invalidate any user-related queries
+    queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
+    
     return data;
   };
   
   // Register function
   const register = async (userData: any) => {
-    const response = await fetch('/api/auth/register', {
+    return await apiRequest('/api/auth/register', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(userData),
     });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
-    }
-    
-    return await response.json();
   };
   
   // Logout function
   const logoutUser = () => {
     localStorage.removeItem('auth_token');
     dispatch(logout());
+    
+    // Invalidate all queries on logout
+    queryClient.clear();
   };
+  
+  // User profile query hook (can be used in components that need user data)
+  const userQuery = useQuery({
+    queryKey: ['/api/auth/me'],
+    queryFn: getQueryFn({ on401: 'returnNull' }),
+    enabled: isAuthenticated,
+  });
   
   return {
     isAuthenticated,
@@ -98,5 +93,6 @@ export const useAuth = () => {
     login,
     register,
     logout: logoutUser,
+    userQuery,
   };
 };

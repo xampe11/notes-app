@@ -8,18 +8,39 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest(
-  method: string,
   url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
+  options: RequestInit = {}
+): Promise<any> {
+  // Get auth token if available
+  const token = localStorage.getItem('auth_token');
+  
+  // Set up headers
+  const headers = new Headers(options.headers || {});
+  
+  // Add auth header if token exists
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  
+  // Add content-type for JSON if we have a body
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  
   const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    ...options,
+    headers,
     credentials: "include",
   });
 
   await throwIfResNotOk(res);
+  
+  // Parse JSON if the response has content
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await res.json();
+  }
+  
   return res;
 }
 
@@ -29,7 +50,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    // Get auth token if available
+    const token = localStorage.getItem('auth_token');
+    
+    // Set up headers with auth token if present
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const res = await fetch(queryKey[0] as string, {
+      headers,
       credentials: "include",
     });
 
