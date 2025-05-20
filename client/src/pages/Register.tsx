@@ -3,8 +3,8 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Form,
   FormControl,
@@ -30,6 +30,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 const Register = () => {
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
+  const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegisterFormValues>({
@@ -42,25 +43,11 @@ const Register = () => {
     },
   });
 
-  const registerMutation = useMutation({
-    mutationFn: async (data: RegisterFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
+    try {
       setIsLoading(true);
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      await register(data);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
       toast({
         title: "Registration successful",
         description: "Your account has been created. Please log in.",
@@ -68,21 +55,15 @@ const Register = () => {
       
       // Redirect to login page
       setLocation("/login");
-    },
-    onError: (error: any) => {
+    } catch (error: any) {
       toast({
         title: "Registration failed",
         description: error.message || "Something went wrong",
         variant: "destructive",
       });
-    },
-    onSettled: () => {
+    } finally {
       setIsLoading(false);
-    },
-  });
-
-  const onSubmit = (data: RegisterFormValues) => {
-    registerMutation.mutate(data);
+    }
   };
 
   return (

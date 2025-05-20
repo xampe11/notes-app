@@ -6,12 +6,21 @@ import { useLocation } from 'wouter';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { openNoteModal } from '@/redux/notesSlice';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const dispatch = useDispatch();
   const searchQuery = useSelector((state: RootState) => state.notes.searchQuery);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, user, logout } = useAuth();
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

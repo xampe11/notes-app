@@ -3,8 +3,8 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Form,
   FormControl,
@@ -16,8 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDispatch } from "react-redux";
-import { setAuth } from "@/redux/authSlice";
 
 // Login form schema
 const loginSchema = z.object({
@@ -30,7 +28,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 const Login = () => {
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
-  const dispatch = useDispatch();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -41,34 +39,10 @@ const Login = () => {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
       setIsLoading(true);
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data) => {
-      // Save auth data to Redux store
-      dispatch(setAuth({
-        isAuthenticated: true,
-        user: data.user,
-        token: data.token,
-      }));
-      
-      // Save token to localStorage for persistence
-      localStorage.setItem("auth_token", data.token);
+      await login(data.username, data.password);
       
       toast({
         title: "Login successful",
@@ -77,21 +51,15 @@ const Login = () => {
       
       // Redirect to home page
       setLocation("/");
-    },
-    onError: (error: any) => {
+    } catch (error: any) {
       toast({
         title: "Login failed",
         description: error.message || "Invalid username or password",
         variant: "destructive",
       });
-    },
-    onSettled: () => {
+    } finally {
       setIsLoading(false);
-    },
-  });
-
-  const onSubmit = (data: LoginFormValues) => {
-    loginMutation.mutate(data);
+    }
   };
 
   return (
