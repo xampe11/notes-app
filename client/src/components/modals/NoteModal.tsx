@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { closeNoteModal } from "@/redux/notesSlice";
 import NoteForm from "@/components/notes/NoteForm";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Note, InsertNote } from "@/types/schema";
@@ -63,11 +63,73 @@ const NoteModal = () => {
     },
   });
 
-  const handleFormSubmit = (data: InsertNote) => {
-    if (currentNote?.id) {
-      updateNoteMutation.mutate({ id: currentNote.id, note: data });
-    } else {
-      createNoteMutation.mutate(data);
+  // Get note categories if editing an existing note
+  const { data: noteCategories = [] } = useQuery({
+    queryKey: ['/api/notes', currentNote?.id, 'categories'],
+    queryFn: async () => {
+      if (!currentNote?.id) return [];
+      const response = await fetch(`/api/notes/${currentNote.id}/categories`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch note categories');
+      }
+      return response.json();
+    },
+    enabled: !!currentNote?.id,
+  });
+
+  const handleFormSubmit = async (data: InsertNote & { categories?: number[] }) => {
+    try {
+      // First create or update the note
+      let noteResponse;
+      if (currentNote?.id) {
+        // Update existing note
+        const { categories: categoryIds, ...noteData } = data;
+        noteResponse = await updateNoteMutation.mutateAsync({ id: currentNote.id, note: noteData });
+
+        // Handle categories if they exist
+        if (categoryIds && categoryIds.length > 0) {
+          // Clear existing categories and add new ones
+          for (const categoryId of categoryIds) {
+            await fetch(`/api/notes/${currentNote.id}/categories/${categoryId}`, {
+              method: 'POST',
+            });
+          }
+        }
+      } else {
+        // Create new note
+        const { categories: categoryIds, ...noteData } = data;
+        noteResponse = await createNoteMutation.mutateAsync(noteData);
+
+        // Handle categories if they exist
+        if (categoryIds && categoryIds.length > 0 && noteResponse.id) {
+          // Add categories to the new note
+          for (const categoryId of categoryIds) {
+            await fetch(`/api/notes/${noteResponse.id}/categories/${categoryId}`, {
+              method: 'POST',
+            });
+          }
+        }
+      }
+
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
+      
+      // Show success message
+      toast({
+        title: currentNote?.id ? "Note updated" : "Note created",
+        description: currentNote?.id 
+          ? "Your note has been updated successfully." 
+          : "Your note has been created successfully.",
+      });
+      
+      // Close the modal
+      dispatch(closeNoteModal());
+    } catch (error) {
+      toast({
+        title: currentNote?.id ? "Failed to update note" : "Failed to create note",
+        description: "There was an error. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -88,6 +150,7 @@ const NoteModal = () => {
             onSubmit={handleFormSubmit}
             onCancel={handleCancel}
             defaultValues={currentNote || undefined}
+            noteCategories={noteCategories}
             isSubmitting={createNoteMutation.isPending || updateNoteMutation.isPending}
           />
         </div>
