@@ -5,7 +5,7 @@ import NoteForm from "@/components/notes/NoteForm";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Note, InsertNote } from "@/types/schema";
+import type { Note, InsertNote, Category } from "@/types/schema";
 import {
   Dialog,
   DialogContent,
