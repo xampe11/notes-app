@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { insertNoteSchema } from "@shared/schema";
-import type { Note } from "@shared/schema";
+import { insertNoteSchema } from "@/types/schema";
+import type { Note } from "@/types/schema";
 
 // Extend with validation rules
 const formSchema = insertNoteSchema.extend({

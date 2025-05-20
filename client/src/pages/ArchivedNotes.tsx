@@ -4,7 +4,7 @@ import { RootState } from "@/redux/store";
 import { setNotes, setLoading, setError } from "@/redux/notesSlice";
 import { useQuery } from "@tanstack/react-query";
 import NoteCard from "@/components/notes/NoteCard";
-import type { Note } from "@shared/schema";
+import type { Note } from "@/types/schema";
 
 const ArchivedNotes = () => {
   const dispatch = useDispatch();

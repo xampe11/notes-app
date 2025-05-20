@@ -1,4 +1,4 @@
-import { notes, type Note, type InsertNote, type UpdateNote } from "@shared/schema";
+import { notes, users, type Note, type InsertNote, type UpdateNote } from "./models/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 

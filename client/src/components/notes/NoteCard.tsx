@@ -6,7 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/lib/formatDate";
 import { useToast } from "@/hooks/use-toast";
-import type { Note } from "@shared/schema";
+import type { Note } from "@/types/schema";
 
 interface NoteCardProps {
   note: Note;

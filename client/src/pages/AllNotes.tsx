@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import NoteCard from "@/components/notes/NoteCard";
 import { Button } from "@/components/ui/button";
 import EmptyState from "./EmptyState";
-import type { Note } from "@shared/schema";
+import type { Note } from "@/types/schema";
 
 const AllNotes = () => {
   const dispatch = useDispatch();
