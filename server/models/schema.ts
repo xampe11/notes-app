@@ -1,6 +1,7 @@
-import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // User schema from original file
 export const users = pgTable("users", {
@@ -41,3 +42,37 @@ export const updateNoteSchema = createInsertSchema(notes).omit({
 export type Note = typeof notes.$inferSelect;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type UpdateNote = z.infer<typeof updateNoteSchema>;
+
+// Categories schema
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+});
+
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true,
+});
+
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+
+// Note to Category relation (many-to-many)
+export const noteCategories = pgTable("note_categories", {
+  id: serial("id").primaryKey(),
+  noteId: integer("note_id").notNull().references(() => notes.id, { onDelete: "cascade" }),
+  categoryId: integer("category_id").notNull().references(() => categories.id, { onDelete: "cascade" }),
+});
+
+// Relations
+export const notesRelations = relations(notes, ({ many }) => ({
+  categories: many(noteCategories),
+}));
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  notes: many(noteCategories),
+}));
+
+export const noteCategoriesRelations = relations(noteCategories, ({ one }) => ({
+  note: one(notes, { fields: [noteCategories.noteId], references: [notes.id] }),
+  category: one(categories, { fields: [noteCategories.categoryId], references: [categories.id] }),
+}));
