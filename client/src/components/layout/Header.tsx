@@ -164,7 +164,7 @@ const Header = () => {
           </div>
         </div>
         
-        {/* View Toggle and User Button - For future implementation */}
+        {/* View Toggle and User Menu */}
         <div className="flex items-center">
           <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
             <button className="p-1.5 text-primary bg-white rounded">
@@ -175,9 +175,44 @@ const Header = () => {
             </button>
           </div>
           
-          <button className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
-            <span className="material-icons text-sm">person</span>
-          </button>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                  <span className="material-icons text-sm">person</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <div className="px-2 py-1.5 text-sm font-medium text-gray-900 border-b">
+                  {user?.username || 'User'}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer" onClick={() => logout()}>
+                  <span className="material-icons text-sm mr-2">logout</span>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setLocation('/login')}
+                className="text-sm"
+              >
+                Login
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setLocation('/register')}
+                className="text-sm"
+              >
+                Sign Up
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

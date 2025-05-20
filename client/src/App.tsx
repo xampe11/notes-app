@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import NoteModal from "./components/modals/NoteModal";
 import DeleteModal from "./components/modals/DeleteModal";
 import CategoryModal from "./components/modals/CategoryModal";
+import PrivateRoute from "./components/auth/PrivateRoute";
 
 function Router() {
   return (
@@ -26,8 +27,8 @@ function Router() {
         
         <main className="flex-1 overflow-y-auto p-4 bg-gray-50">
           <Switch>
-            <Route path="/" component={AllNotes} />
-            <Route path="/archived" component={ArchivedNotes} />
+            <PrivateRoute path="/" component={AllNotes} />
+            <PrivateRoute path="/archived" component={ArchivedNotes} />
             <Route path="/login" component={Login} />
             <Route path="/register" component={Register} />
             <Route component={NotFound} />
