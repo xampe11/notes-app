@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '@shared/schema';
+import { User } from '../models/schema';
 
 // Secret key for JWT - in a real app, use a secure, environment variable
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';

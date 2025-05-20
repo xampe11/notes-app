@@ -54,9 +54,9 @@ export const getQueryFn: <T>(options: {
     const token = localStorage.getItem('auth_token');
     
     // Set up headers with auth token if present
-    const headers: HeadersInit = {};
+    const headers = new Headers();
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers.set('Authorization', `Bearer ${token}`);
     }
     
     const res = await fetch(queryKey[0] as string, {
