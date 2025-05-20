@@ -10,15 +10,16 @@ import type { Note } from "@/types/schema";
 
 const AllNotes = () => {
   const dispatch = useDispatch();
-  const { filteredNotes, isLoading, searchQuery } = useSelector((state: RootState) => state.notes);
+  const { filteredNotes, isLoading, searchQuery, selectedCategoryId } = useSelector((state: RootState) => state.notes);
   
   const { data, error, isLoading: queryLoading } = useQuery<Note[]>({
-    queryKey: ['/api/notes', { archived: false, search: searchQuery }],
+    queryKey: ['/api/notes', { archived: false, search: searchQuery, categoryId: selectedCategoryId }],
     queryFn: async ({ queryKey }) => {
-      const [_path, { archived, search }] = queryKey as [string, { archived: boolean, search: string }];
+      const [_path, { archived, search, categoryId }] = queryKey as [string, { archived: boolean, search: string, categoryId: number | null }];
       const url = new URL('/api/notes', window.location.origin);
       url.searchParams.append('archived', String(archived));
       if (search) url.searchParams.append('search', search);
+      if (categoryId) url.searchParams.append('categoryId', String(categoryId));
       const response = await fetch(url.toString(), { credentials: 'include' });
       if (!response.ok) {
         throw new Error('Failed to fetch notes');

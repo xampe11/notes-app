@@ -45,15 +45,22 @@ const CategoryModal = () => {
     },
   });
 
-  const createCategoryMutation = useMutation({
+  const createCategoryMutation = useMutation<any, Error, InsertCategory>({
     mutationFn: async (data: InsertCategory) => {
-      return apiRequest('/api/categories', {
+      const response = await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create category');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -112,10 +119,10 @@ const CategoryModal = () => {
             <DialogFooter>
               <Button 
                 type="submit" 
-                isLoading={createCategoryMutation.isPending}
                 disabled={createCategoryMutation.isPending}
+                className="relative"
               >
-                Create Category
+                {createCategoryMutation.isPending ? 'Creating...' : 'Create Category'}
               </Button>
             </DialogFooter>
           </form>

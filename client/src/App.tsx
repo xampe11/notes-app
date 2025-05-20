@@ -12,6 +12,7 @@ import AllNotes from "./pages/AllNotes";
 import ArchivedNotes from "./pages/ArchivedNotes";
 import NoteModal from "./components/modals/NoteModal";
 import DeleteModal from "./components/modals/DeleteModal";
+import CategoryModal from "./components/modals/CategoryModal";
 
 function Router() {
   return (
@@ -33,6 +34,7 @@ function Router() {
       {/* Modals */}
       <NoteModal />
       <DeleteModal />
+      <CategoryModal />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useDispatch } from 'react-redux';
 import { openNoteModal } from '@/redux/notesSlice';
+import CategoryList from '@/components/categories/CategoryList';
 
 const Sidebar = () => {
   const [location] = useLocation();
@@ -53,6 +54,10 @@ const Sidebar = () => {
               </li>
             ))}
           </ul>
+          
+          <div className="mt-6 px-6">
+            <CategoryList />
+          </div>
         </nav>
         
         <div className="p-4 border-t border-gray-200">
