@@ -25,6 +25,31 @@ export type Note = z.infer<typeof noteSchema>;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type UpdateNote = z.infer<typeof updateNoteSchema>;
 
+// Category schema
+export const categorySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+});
+
+export const insertCategorySchema = categorySchema.omit({
+  id: true,
+});
+
+export type Category = z.infer<typeof categorySchema>;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+
+// For the relationship between notes and categories
+export const noteCategorySchema = z.object({
+  id: z.number(),
+  noteId: z.number(),
+  categoryId: z.number(),
+});
+
+// Extended note type to include categories
+export const noteWithCategoriesSchema = noteSchema.extend({
+  categories: z.array(categorySchema).optional(),
+});
+
 // User schema
 export const userSchema = z.object({
   id: z.number(),

@@ -2,21 +2,40 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertNoteSchema, updateNoteSchema } from "./models/schema";
+import { 
+  insertNoteSchema, updateNoteSchema, 
+  insertCategorySchema 
+} from "./models/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all active notes
+  // Get all active notes with their categories
   app.get("/api/notes", async (req: Request, res: Response) => {
     try {
       const archived = req.query.archived === "true";
       const search = req.query.search as string | undefined;
+      const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+      const includeCategories = req.query.includeCategories === "true";
       
+      // Filter by categoryId if provided
+      if (categoryId && !isNaN(categoryId)) {
+        const notes = await storage.getNotesByCategory(categoryId, archived);
+        return res.json(notes);
+      }
+      
+      // Search by query if provided
       if (search && search.trim() !== "") {
         const notes = await storage.searchNotes(search, archived);
         return res.json(notes);
       }
       
+      // Get notes with categories if requested
+      if (includeCategories) {
+        const notesWithCategories = await storage.getNotesWithCategories(archived);
+        return res.json(notesWithCategories);
+      }
+      
+      // Default: just get notes without categories
       const notes = await storage.getNotes(archived);
       return res.json(notes);
     } catch (error) {
