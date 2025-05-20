@@ -1,17 +1,21 @@
 import { 
   notes, users, categories, noteCategories,
   type Note, type InsertNote, type UpdateNote, 
-  type Category, type InsertCategory 
+  type Category, type InsertCategory,
+  type User, type InsertUser
 } from "./models/schema";
 import { db } from "./db";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 // Extend the storage interface to include note operations
 export interface IStorage {
-  // Original user methods
-  getUser(id: number): Promise<any | undefined>;
-  getUserByUsername(username: string): Promise<any | undefined>;
-  createUser(user: any): Promise<any>;
+  // User authentication methods
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  validateUserCredentials(username: string, password: string): Promise<User | null>;
   
   // Note methods
   getNotes(archived: boolean): Promise<Note[]>;
@@ -37,20 +41,55 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // Original user methods
-  async getUser(id: number): Promise<any | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select()
       .from(users)
       .where(eq(users.id, id));
-    return user || undefined;
+    return user;
   }
 
-  async getUserByUsername(username: string): Promise<any | undefined> {
-    // This method is not relevant for our notes app but kept for interface compatibility
-    return undefined;
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select()
+      .from(users)
+      .where(eq(users.username, username));
+    return user;
   }
 
-  async createUser(user: any): Promise<any> {
-    // This method is not relevant for our notes app but kept for interface compatibility
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select()
+      .from(users)
+      .where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    // Hash the password before storing
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+    
+    const [createdUser] = await db.insert(users)
+      .values({ 
+        ...userData, 
+        password: hashedPassword 
+      })
+      .returning();
+    
+    return createdUser;
+  }
+
+  async validateUserCredentials(username: string, password: string): Promise<User | null> {
+    // Find user by username
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      return null;
+    }
+    
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return null;
+    }
+    
     return user;
   }
 
