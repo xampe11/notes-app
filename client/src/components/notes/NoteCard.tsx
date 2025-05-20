@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useDispatch } from "react-redux";
 import { openDeleteModal, openNoteModal, setCurrentNote } from "@/redux/notesSlice";
 import { apiRequest } from "@/lib/queryClient";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { formatDate } from "@/lib/formatDate";
 import { useToast } from "@/hooks/use-toast";
-import type { Note } from "@/types/schema";
+import type { Note, Category } from "@/types/schema";
 
 interface NoteCardProps {
   note: Note;
@@ -16,6 +17,18 @@ const NoteCard = ({ note }: NoteCardProps) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  // Fetch categories for this note
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['/api/notes', note.id, 'categories'],
+    queryFn: async () => {
+      const response = await fetch(`/api/notes/${note.id}/categories`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch note categories');
+      }
+      return response.json();
+    },
+  });
 
   const archiveMutation = useMutation({
     mutationFn: async () => {
@@ -71,8 +84,21 @@ const NoteCard = ({ note }: NoteCardProps) => {
         </div>
       </div>
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-t border-gray-100">
-        <div>
-          {/* Tags would go here if implemented */}
+        <div className="flex flex-wrap gap-1 max-w-[150px] overflow-hidden">
+          {categories.length > 0 ? (
+            categories.map(category => (
+              <Badge 
+                key={category.id}
+                variant="outline"
+                className="px-1.5 py-0.5 text-xs whitespace-nowrap overflow-hidden text-ellipsis"
+                title={category.name}
+              >
+                {category.name}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-xs text-gray-400">No categories</span>
+          )}
         </div>
         <div className="flex space-x-1">
           <Button 
