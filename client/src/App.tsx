@@ -10,6 +10,8 @@ import Sidebar from "./components/layout/Sidebar";
 import Header from "./components/layout/Header";
 import AllNotes from "./pages/AllNotes";
 import ArchivedNotes from "./pages/ArchivedNotes";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import NoteModal from "./components/modals/NoteModal";
 import DeleteModal from "./components/modals/DeleteModal";
 import CategoryModal from "./components/modals/CategoryModal";
@@ -26,6 +28,8 @@ function Router() {
           <Switch>
             <Route path="/" component={AllNotes} />
             <Route path="/archived" component={ArchivedNotes} />
+            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
             <Route component={NotFound} />
           </Switch>
         </main>

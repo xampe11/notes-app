@@ -157,7 +157,7 @@ const Login = () => {
             <Button
               variant="link"
               className="p-0 h-auto font-semibold"
-              onClick={() => navigate("/register")}
+              onClick={() => setLocation("/register")}
             >
               Sign up
             </Button>

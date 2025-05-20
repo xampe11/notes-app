@@ -14,7 +14,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register authentication routes
   app.use('/api/auth', authRoutes);
   // Get all active notes with their categories
-  app.get("/api/notes", authenticate, async (req: Request, res: Response) => {
+  app.get("/api/notes", async (req: Request, res: Response) => {
     try {
       const archived = req.query.archived === "true";
       const search = req.query.search as string | undefined;
@@ -161,8 +161,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Category endpoints
   
-  // Get all categories
-  app.get("/api/categories", authenticate, async (req: Request, res: Response) => {
+  // Get all categories - removing authentication temporarily for development
+  app.get("/api/categories", async (req: Request, res: Response) => {
     try {
       const categories = await storage.getCategories();
       return res.json(categories);

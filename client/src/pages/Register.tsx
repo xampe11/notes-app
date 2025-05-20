@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,7 +28,7 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Register = () => {
-  const navigate = useNavigate();
+  const [_, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -67,7 +67,7 @@ const Register = () => {
       });
       
       // Redirect to login page
-      navigate("/login");
+      setLocation("/login");
     },
     onError: (error: any) => {
       toast({
@@ -183,7 +183,7 @@ const Register = () => {
             <Button
               variant="link"
               className="p-0 h-auto font-semibold"
-              onClick={() => navigate("/login")}
+              onClick={() => setLocation("/login")}
             >
               Log in
             </Button>
