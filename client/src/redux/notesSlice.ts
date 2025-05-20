@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { Note } from '../types/schema';
+import type { Note, Category } from '../types/schema';
 
 interface NotesState {
   notes: Note[];
@@ -11,6 +11,9 @@ interface NotesState {
   isNoteModalOpen: boolean;
   isDeleteModalOpen: boolean;
   isEditMode: boolean;
+  categories: Category[];
+  selectedCategoryId: number | null;
+  isCategoryModalOpen: boolean;
 }
 
 const initialState: NotesState = {
@@ -23,6 +26,9 @@ const initialState: NotesState = {
   isNoteModalOpen: false,
   isDeleteModalOpen: false,
   isEditMode: false,
+  categories: [],
+  selectedCategoryId: null,
+  isCategoryModalOpen: false,
 };
 
 export const notesSlice = createSlice({
@@ -72,6 +78,29 @@ export const notesSlice = createSlice({
       state.isDeleteModalOpen = false;
       state.currentNote = null;
     },
+    setCategories: (state, action: PayloadAction<Category[]>) => {
+      state.categories = action.payload;
+    },
+    setSelectedCategoryId: (state, action: PayloadAction<number | null>) => {
+      state.selectedCategoryId = action.payload;
+      
+      // Filter notes based on category if one is selected
+      if (action.payload === null) {
+        // Reset filtered notes to all notes, respecting search query
+        state.filteredNotes = state.searchQuery 
+          ? state.notes.filter(note => 
+              note.title.toLowerCase().includes(state.searchQuery.toLowerCase()) || 
+              note.content.toLowerCase().includes(state.searchQuery.toLowerCase())
+            )
+          : state.notes;
+      }
+    },
+    openCategoryModal: (state) => {
+      state.isCategoryModalOpen = true;
+    },
+    closeCategoryModal: (state) => {
+      state.isCategoryModalOpen = false;
+    },
   },
 });
 
@@ -85,6 +114,10 @@ export const {
   closeNoteModal,
   openDeleteModal,
   closeDeleteModal,
+  setCategories,
+  setSelectedCategoryId,
+  openCategoryModal,
+  closeCategoryModal,
 } = notesSlice.actions;
 
 export default notesSlice.reducer;

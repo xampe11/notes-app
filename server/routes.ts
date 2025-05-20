@@ -155,6 +155,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Category endpoints
+  
+  // Get all categories
+  app.get("/api/categories", async (req: Request, res: Response) => {
+    try {
+      const categories = await storage.getCategories();
+      return res.json(categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      return res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Create a new category
+  app.post("/api/categories", async (req: Request, res: Response) => {
+    try {
+      const validationResult = insertCategorySchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      
+      const category = await storage.createCategory(validationResult.data);
+      return res.status(201).json(category);
+    } catch (error) {
+      console.error("Error creating category:", error);
+      return res.status(500).json({ message: "Failed to create category" });
+    }
+  });
+
+  // Delete a category
+  app.delete("/api/categories/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+
+      const deleted = await storage.deleteCategory(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      return res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
+  // Get categories for a note
+  app.get("/api/notes/:id/categories", async (req: Request, res: Response) => {
+    try {
+      const noteId = parseInt(req.params.id);
+      if (isNaN(noteId)) {
+        return res.status(400).json({ message: "Invalid note ID" });
+      }
+
+      const categories = await storage.getNoteCategories(noteId);
+      return res.json(categories);
+    } catch (error) {
+      console.error("Error fetching note categories:", error);
+      return res.status(500).json({ message: "Failed to fetch note categories" });
+    }
+  });
+
+  // Add a category to a note
+  app.post("/api/notes/:id/categories/:categoryId", async (req: Request, res: Response) => {
+    try {
+      const noteId = parseInt(req.params.id);
+      const categoryId = parseInt(req.params.categoryId);
+      
+      if (isNaN(noteId) || isNaN(categoryId)) {
+        return res.status(400).json({ message: "Invalid note or category ID" });
+      }
+
+      const success = await storage.addCategoryToNote(noteId, categoryId);
+      
+      if (!success) {
+        return res.status(400).json({ message: "Failed to add category to note" });
+      }
+      
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error adding category to note:", error);
+      return res.status(500).json({ message: "Failed to add category to note" });
+    }
+  });
+
+  // Remove a category from a note
+  app.delete("/api/notes/:id/categories/:categoryId", async (req: Request, res: Response) => {
+    try {
+      const noteId = parseInt(req.params.id);
+      const categoryId = parseInt(req.params.categoryId);
+      
+      if (isNaN(noteId) || isNaN(categoryId)) {
+        return res.status(400).json({ message: "Invalid note or category ID" });
+      }
+
+      const success = await storage.removeCategoryFromNote(noteId, categoryId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Note-category relationship not found" });
+      }
+      
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error removing category from note:", error);
+      return res.status(500).json({ message: "Failed to remove category from note" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
