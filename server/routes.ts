@@ -162,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Category endpoints
   
   // Get all categories
-  app.get("/api/categories", async (req: Request, res: Response) => {
+  app.get("/api/categories", authenticate, async (req: Request, res: Response) => {
     try {
       const categories = await storage.getCategories();
       return res.json(categories);
