@@ -7,10 +7,14 @@ import {
   insertCategorySchema 
 } from "./models/schema";
 import { fromZodError } from "zod-validation-error";
+import authRoutes from "./routes/auth";
+import { authenticate } from "./middlewares/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register authentication routes
+  app.use('/api/auth', authRoutes);
   // Get all active notes with their categories
-  app.get("/api/notes", async (req: Request, res: Response) => {
+  app.get("/api/notes", authenticate, async (req: Request, res: Response) => {
     try {
       const archived = req.query.archived === "true";
       const search = req.query.search as string | undefined;
@@ -45,7 +49,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get a single note by ID
-  app.get("/api/notes/:id", async (req: Request, res: Response) => {
+  app.get("/api/notes/:id", authenticate, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -65,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create a new note
-  app.post("/api/notes", async (req: Request, res: Response) => {
+  app.post("/api/notes", authenticate, async (req: Request, res: Response) => {
     try {
       const validationResult = insertNoteSchema.safeParse(req.body);
       
@@ -83,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update an existing note
-  app.put("/api/notes/:id", async (req: Request, res: Response) => {
+  app.put("/api/notes/:id", authenticate, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -111,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Toggle archive status
-  app.patch("/api/notes/:id/archive", async (req: Request, res: Response) => {
+  app.patch("/api/notes/:id/archive", authenticate, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -135,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a note
-  app.delete("/api/notes/:id", async (req: Request, res: Response) => {
+  app.delete("/api/notes/:id", authenticate, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
