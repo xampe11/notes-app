@@ -82,11 +82,21 @@ const AllNotes = () => {
 
   return (
     <div className="px-6 py-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-        {filteredNotes.map(note => (
-          <NoteCard key={note.id} note={note} />
-        ))}
-      </div>
+      {viewMode === 'grid' ? (
+        // Grid View
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+          {filteredNotes.map(note => (
+            <NoteCard key={note.id} note={note} />
+          ))}
+        </div>
+      ) : (
+        // List View
+        <div className="flex flex-col space-y-4">
+          {filteredNotes.map(note => (
+            <NoteCard key={note.id} note={note} isListView={true} />
+          ))}
+        </div>
+      )}
 
       {/* Mobile Floating Action Button - only visible on mobile */}
       <div className="fixed right-8 bottom-8 md:hidden">

@@ -8,7 +8,7 @@ import type { Note } from "@/types/schema";
 
 const ArchivedNotes = () => {
   const dispatch = useDispatch();
-  const { filteredNotes, isLoading, searchQuery } = useSelector((state: RootState) => state.notes);
+  const { filteredNotes, isLoading, searchQuery, viewMode } = useSelector((state: RootState) => state.notes);
   
   const { data, error, isLoading: queryLoading } = useQuery<Note[]>({
     queryKey: ['/api/notes', { archived: true, search: searchQuery }],
@@ -85,11 +85,21 @@ const ArchivedNotes = () => {
 
   return (
     <div className="px-6 py-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-        {filteredNotes.map(note => (
-          <NoteCard key={note.id} note={note} />
-        ))}
-      </div>
+      {viewMode === 'grid' ? (
+        // Grid View
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+          {filteredNotes.map(note => (
+            <NoteCard key={note.id} note={note} />
+          ))}
+        </div>
+      ) : (
+        // List View
+        <div className="flex flex-col space-y-4">
+          {filteredNotes.map(note => (
+            <NoteCard key={note.id} note={note} isListView={true} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

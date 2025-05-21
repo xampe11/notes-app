@@ -11,9 +11,10 @@ import type { Note, Category } from "@/types/schema";
 
 interface NoteCardProps {
   note: Note;
+  isListView?: boolean;
 }
 
-const NoteCard = ({ note }: NoteCardProps) => {
+const NoteCard = ({ note, isListView = false }: NoteCardProps) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -129,6 +130,72 @@ const NoteCard = ({ note }: NoteCardProps) => {
     dispatch(openNoteModal(true));
   };
 
+  if (isListView) {
+    // List View Layout
+    return (
+      <Card className="note-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 cursor-pointer w-full" onClick={handleCardClick}>
+        <div className="p-4 flex flex-row items-center">
+          <div className="flex-grow pr-4">
+            <div className="flex items-center mb-1.5">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg line-clamp-1">{note.title}</h3>
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-3">
+                {formatDate(note.updatedAt)}
+              </span>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-1">{note.content}</p>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {categories.length > 0 ? (
+                categories.map(category => (
+                  <Badge 
+                    key={category.id}
+                    variant="outline"
+                    className="px-2 py-0.5 text-xs whitespace-nowrap overflow-hidden text-ellipsis bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                    title={category.name}
+                  >
+                    {category.name}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-xs text-gray-400 dark:text-gray-500">No categories</span>
+              )}
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-8 w-8 p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20" 
+              title="Edit"
+              onClick={handleEdit}
+            >
+              <span className="material-icons text-sm">edit</span>
+            </Button>
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-8 w-8 p-1.5 text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-full hover:bg-amber-50 dark:hover:bg-amber-900/20" 
+              title={note.archived ? "Unarchive" : "Archive"}
+              onClick={handleArchive}
+              disabled={archiveMutation.isPending}
+            >
+              <span className="material-icons text-sm">{note.archived ? "unarchive" : "archive"}</span>
+            </Button>
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-8 w-8 p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20" 
+              title="Delete"
+              onClick={handleDelete}
+            >
+              <span className="material-icons text-sm">delete</span>
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+  
+  // Grid View Layout (Default)
   return (
     <Card className="note-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col hover:shadow-md hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 cursor-pointer h-full" onClick={handleCardClick}>
       <div className="p-5 flex-1 flex flex-col">
