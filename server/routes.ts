@@ -71,14 +71,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new note
   app.post("/api/notes", authenticate, async (req: Request, res: Response) => {
     try {
+      console.log("Creating note with request body:", req.body);
+      console.log("User from token:", req.user);
+      
       const validationResult = insertNoteSchema.safeParse(req.body);
       
       if (!validationResult.success) {
         const validationError = fromZodError(validationResult.error);
+        console.log("Validation error:", validationError.message);
         return res.status(400).json({ message: validationError.message });
       }
       
-      const note = await storage.createNote(validationResult.data);
+      // Make sure userId is set from the authenticated user
+      const noteData = {
+        ...validationResult.data,
+        userId: req.user?.id
+      };
+      
+      console.log("Creating note with data:", noteData);
+      const note = await storage.createNote(noteData);
       return res.status(201).json(note);
     } catch (error) {
       console.error("Error creating note:", error);
