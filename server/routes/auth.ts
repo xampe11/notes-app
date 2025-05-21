@@ -31,13 +31,12 @@ router.post('/register', async (req: Request, res: Response) => {
             }
         }
         
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // We'll let storage layer handle password hashing
         
         // Create new user
         const newUser = await storage.createUser({
             username,
-            password: hashedPassword,
+            password, // We'll let the storage layer handle the hashing
             email,
             name,
         });
