@@ -17,41 +17,45 @@ import {
 
 const DeleteModal = () => {
   const dispatch = useDispatch();
-  const { isDeleteModalOpen, currentNote } = useSelector((state: RootState) => state.notes);
+  const { isDeleteModalOpen, noteToDelete } = useSelector((state: RootState) => state.notes);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!currentNote?.id) return;
-      console.log('Deleting note with ID:', currentNote.id);
-      return await apiRequest(`/api/notes/${currentNote.id}`, {
+      if (!noteToDelete?.id) return;
+      console.log('Deleting note with ID:', noteToDelete.id, 'Archived:', noteToDelete.archived);
+      return await apiRequest(`/api/notes/${noteToDelete.id}`, {
         method: 'DELETE'
       });
     },
     onSuccess: () => {
       console.log('Note deleted successfully, invalidating queries');
       
-      // Invalidate both regular and archived notes queries
+      // Invalidate all notes queries
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
       
-      // Force refetch both regular and archived notes
+      // Force immediate refetch of all notes queries
       queryClient.refetchQueries({ queryKey: ['/api/notes'] });
       
-      // Specifically invalidate archived notes queries 
-      if (currentNote?.archived) {
-        console.log('Invalidating archived notes queries');
+      // For archived notes, we need special handling
+      if (noteToDelete?.archived) {
+        console.log('Deleted an archived note, forcing UI refresh');
+        
+        // Force a refetch of the archived notes specifically
         queryClient.invalidateQueries({ 
           queryKey: ['/api/notes', { archived: true }] 
         });
-        queryClient.refetchQueries({ 
-          queryKey: ['/api/notes', { archived: true }] 
-        });
+        
+        // Force a page reload for archived view to ensure UI updates correctly
+        if (window.location.pathname.includes('/archived')) {
+          window.location.reload();
+        }
       }
       
       toast({
         title: "Note deleted",
-        description: "Your note has been deleted successfully.",
+        description: noteToDelete ? `"${noteToDelete.title}" has been deleted successfully.` : "Note has been deleted successfully.",
       });
       
       // Close the modal

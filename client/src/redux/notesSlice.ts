@@ -10,6 +10,7 @@ interface NotesState {
   currentNote: Note | null;
   isNoteModalOpen: boolean;
   isDeleteModalOpen: boolean;
+  noteToDelete: Note | null; // Track note to delete
   isEditMode: boolean;
   categories: Category[];
   selectedCategoryId: number | null;
@@ -25,6 +26,7 @@ const initialState: NotesState = {
   currentNote: null,
   isNoteModalOpen: false,
   isDeleteModalOpen: false,
+  noteToDelete: null,
   isEditMode: false,
   categories: [],
   selectedCategoryId: null,
@@ -72,11 +74,11 @@ export const notesSlice = createSlice({
     },
     openDeleteModal: (state, action: PayloadAction<Note>) => {
       state.isDeleteModalOpen = true;
-      state.currentNote = action.payload;
+      state.noteToDelete = action.payload;
     },
     closeDeleteModal: (state) => {
       state.isDeleteModalOpen = false;
-      state.currentNote = null;
+      state.noteToDelete = null;
     },
     setCategories: (state, action: PayloadAction<Category[]>) => {
       state.categories = action.payload;
