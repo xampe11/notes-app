@@ -70,14 +70,17 @@ const Header = () => {
             {location === '/' ? 'All Notes' : 'Archived Notes'}
           </h2>
           
-          <Button 
-            onClick={() => dispatch(openNoteModal(false))}
-            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow flex items-center"
-            size="sm"
-          >
-            <span className="material-icons text-sm mr-1.5">add</span>
-            New Note
-          </Button>
+          {/* Only show New Note button on the main page, not on archived page */}
+          {location === '/' && (
+            <Button 
+              onClick={() => dispatch(openNoteModal(false))}
+              className="ml-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow flex items-center"
+              size="sm"
+            >
+              <span className="material-icons text-sm mr-1.5">add</span>
+              New Note
+            </Button>
+          )}
         </div>
         
         {/* Mobile sidebar */}
