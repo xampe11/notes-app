@@ -28,9 +28,9 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-72 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block transition-all duration-300 ease-in-out shadow-sm">
+    <aside className="w-72 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block transition-all duration-300 ease-in-out">
       <div className="flex flex-col h-full">
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+        <div className="h-16 px-6 flex items-center border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
             <span className="material-icons mr-2.5 text-blue-600 dark:text-blue-400">note_alt</span>
             Notes App

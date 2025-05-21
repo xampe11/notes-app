@@ -54,8 +54,8 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="flex justify-between items-center px-6 py-4">
+    <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="flex justify-between items-center px-6 h-full">
         <div className="flex items-center">
           <Button 
             id="sidebar-toggle" 
