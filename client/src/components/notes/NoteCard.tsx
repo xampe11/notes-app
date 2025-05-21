@@ -63,9 +63,48 @@ const NoteCard = ({ note }: NoteCardProps) => {
     archiveMutation.mutate();
   };
 
+  // Direct delete functionality without using modal
+  const deleteNoteMutation = useMutation({
+    mutationFn: async () => {
+      console.log(`Directly deleting note with ID ${note.id}, archived: ${note.archived}`);
+      return await apiRequest(`/api/notes/${note.id}`, {
+        method: 'DELETE'
+      });
+    },
+    onSuccess: () => {
+      console.log(`Note ${note.id} successfully deleted, refreshing queries`);
+      
+      // Invalidate and refetch all notes
+      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
+      
+      // Force immediate refetch
+      if (note.archived) {
+        queryClient.refetchQueries({ queryKey: ['/api/notes'] });
+        window.location.reload(); // Force page reload for archived view
+      } else {
+        queryClient.refetchQueries({ queryKey: ['/api/notes'] });
+      }
+      
+      toast({
+        title: "Note deleted",
+        description: `"${note.title}" has been deleted successfully.`,
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting note:", error);
+      toast({
+        title: "Failed to delete note",
+        description: "There was an error deleting your note. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch(openDeleteModal(note));
+    if (confirm(`Are you sure you want to delete "${note.title}"? This action cannot be undone.`)) {
+      deleteNoteMutation.mutate();
+    }
   };
 
   const handleCardClick = () => {
