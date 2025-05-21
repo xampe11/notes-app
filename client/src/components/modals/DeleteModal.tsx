@@ -21,13 +21,21 @@ const DeleteModal = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Debug the noteToDelete object
+  console.log('Note to delete in modal:', noteToDelete);
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!noteToDelete?.id) {
+      // Store note ID locally to prevent issues with state changes during async operation
+      const noteId = noteToDelete?.id;
+      const noteTitle = noteToDelete?.title;
+      const isArchived = noteToDelete?.archived;
+      
+      if (!noteId) {
         throw new Error('No note selected for deletion');
       }
       
-      console.log('Deleting note with ID:', noteToDelete.id, 'Archived:', noteToDelete.archived);
+      console.log('Deleting note with ID:', noteId, 'Archived:', isArchived, 'Title:', noteTitle);
       
       try {
         // Get the auth token from localStorage
@@ -37,13 +45,15 @@ const DeleteModal = () => {
         }
         
         // Make the DELETE request with proper authentication
-        const response = await fetch(`/api/notes/${noteToDelete.id}`, {
+        const response = await fetch(`/api/notes/${noteId}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         
+        // Handle different response status codes
         if (!response.ok) {
           let errorMessage = `Status: ${response.status}`;
           try {
@@ -61,17 +71,30 @@ const DeleteModal = () => {
         
         // Try to parse as JSON, but handle if not JSON
         try {
-          return await response.json();
+          return {
+            success: true,
+            noteId,
+            noteTitle,
+            isArchived
+          };
         } catch (e) {
-          return { success: true };
+          return { 
+            success: true,
+            noteId,
+            noteTitle,
+            isArchived
+          };
         }
       } catch (error) {
         console.error('Error in delete mutation:', error);
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       console.log('Note deleted successfully, server response:', data);
+      
+      // Extract note info from successful response
+      const { noteId, noteTitle, isArchived } = data;
       
       // Invalidate all notes queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
@@ -81,15 +104,17 @@ const DeleteModal = () => {
       
       toast({
         title: "Note deleted",
-        description: noteToDelete ? `"${noteToDelete.title}" has been deleted successfully.` : "Note has been deleted successfully.",
+        description: noteTitle ? `"${noteTitle}" has been deleted successfully.` : "Note has been deleted successfully.",
       });
       
       // Close the modal
       dispatch(closeDeleteModal());
       
-      // Reload the page if we're in the archived view and deleted an archived note
-      if (noteToDelete?.archived && window.location.pathname.includes('/archived')) {
-        window.location.reload();
+      // Handle archived view specific behavior
+      if (isArchived && window.location.pathname.includes('/archived')) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 300); // Add a short delay before reload
       }
     },
     onError: (error: any) => {

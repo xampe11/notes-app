@@ -63,9 +63,66 @@ const NoteCard = ({ note }: NoteCardProps) => {
     archiveMutation.mutate();
   };
 
+  // Direct delete functionality using the API
+  const directDeleteMutation = useMutation({
+    mutationFn: async () => {
+      console.log('Directly deleting note with ID:', note.id, 'Archived:', note.archived);
+      
+      // Get auth token
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      
+      // Make delete request
+      const response = await fetch(`/api/notes/${note.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete note: ${response.status} ${errorText}`);
+      }
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      // Update UI
+      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
+      queryClient.refetchQueries({ queryKey: ['/api/notes'] });
+      
+      // Show success message
+      toast({
+        title: "Note deleted",
+        description: `"${note.title}" has been deleted successfully.`,
+      });
+      
+      // Refresh page if in archived view
+      if (note.archived && window.location.pathname.includes('/archived')) {
+        setTimeout(() => window.location.reload(), 300);
+      }
+    },
+    onError: (error: any) => {
+      console.error('Error deleting note:', error);
+      toast({
+        title: "Failed to delete note",
+        description: error instanceof Error ? error.message : "There was an error deleting your note. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch(openDeleteModal(note));
+    
+    // Show confirmation dialog using browser built-in confirm
+    if (confirm(`Are you sure you want to delete "${note.title}"? This action cannot be undone.`)) {
+      directDeleteMutation.mutate();
+    }
   };
 
   const handleCardClick = () => {
