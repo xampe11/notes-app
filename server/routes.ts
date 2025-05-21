@@ -153,16 +153,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/notes/:id", authenticate, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      console.log(`Attempting to delete note with ID: ${id}`);
+      
       if (isNaN(id)) {
+        console.log('Invalid note ID');
         return res.status(400).json({ message: "Invalid note ID" });
       }
 
-      const deleted = await storage.deleteNote(id);
+      // Check if note exists before deletion
+      const noteToDelete = await storage.getNoteById(id);
+      console.log('Note to delete:', noteToDelete);
       
-      if (!deleted) {
+      if (!noteToDelete) {
+        console.log(`Note with ID ${id} not found`);
         return res.status(404).json({ message: "Note not found" });
       }
+
+      const deleted = await storage.deleteNote(id);
+      console.log(`Deletion success: ${deleted}`);
       
+      if (!deleted) {
+        console.log(`Failed to delete note with ID ${id}`);
+        return res.status(404).json({ message: "Failed to delete note" });
+      }
+      
+      console.log(`Successfully deleted note with ID ${id}`);
       return res.json({ success: true });
     } catch (error) {
       console.error("Error deleting note:", error);

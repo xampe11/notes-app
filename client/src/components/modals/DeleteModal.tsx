@@ -24,8 +24,9 @@ const DeleteModal = () => {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!currentNote?.id) return;
-      const res = await apiRequest('DELETE', `/api/notes/${currentNote.id}`, null);
-      return res.json();
+      return await apiRequest(`/api/notes/${currentNote.id}`, {
+        method: 'DELETE'
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
