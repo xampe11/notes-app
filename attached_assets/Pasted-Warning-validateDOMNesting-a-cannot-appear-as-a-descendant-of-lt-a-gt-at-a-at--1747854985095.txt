@@ -1,0 +1,50 @@
+Warning: validateDOMNesting(...): <a> cannot appear as a descendant of &lt;a&gt;.
+    at a
+    at a
+    at https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=62aaf4ce:279:18
+    at li
+    at ul
+    at nav
+    at div
+    at aside
+    at Sidebar (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/src/components/layout/Sidebar.tsx?t=1747853167731:25:22)
+    at div
+    at AuthenticatedLayout
+    at AppRouter (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/src/App.tsx?t=1747853230403&v=RjYsYk-zR5xWTJGbQNscC:102:22)
+    at Provider (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TOP55UHP.js?v=62aaf4ce:58:15)
+    at TooltipProvider (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=62aaf4ce:54:5)
+    at QueryClientProvider (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=62aaf4ce:2805:3)
+    at Provider (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=62aaf4ce:923:11)
+    at App
+Delete modal state: 
+Object {isOpen: false, note: null}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Dispatching openDeleteModal with note: 
+Object {id: 6, title: "sefgsedvdfv", content: "asvavaeragdfvasrgvdsrgbagb", archived: true, createdAt: "2025-05-21T18:31:36.354Z", …}
+Opening delete modal with note: 
+Object {id: 6, title: "sefgsedvdfv", content: "asvavaeragdfvasrgvdsrgbagb", archived: true, createdAt: "2025-05-21T18:31:36.354Z", …}
+Delete modal state: 
+Object {isOpen: true, note: {…}}
+Delete modal state: 
+Object {isOpen: false, note: null}
+Error deleting note: 
+Error {}
+message: "No note selected for deletion"
+stack: "Error: No note selected for deletion↵ at Object.mutationFn (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/src/components/modals/DeleteModal.tsx?t=1747853230403:45:15)↵ at Object.fn (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=62aaf4ce:1189:29)↵ at run (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=62aaf4ce:494:49)↵ at Object.start (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=62aaf4ce:536:9)↵ at _a6.execute (https://2209b708-c583-4ab9-a328-43bc1fcec008-00-10jftlmi9hyux.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=62aaf4ce:1225:56)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+Delete modal state: 
+Object {isOpen: false, note: null}

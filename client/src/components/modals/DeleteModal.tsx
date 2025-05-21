@@ -26,10 +26,10 @@ const DeleteModal = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      // Store note ID locally to prevent issues with state changes during async operation
-      const noteId = noteToDelete?.id;
-      const noteTitle = noteToDelete?.title;
-      const isArchived = noteToDelete?.archived;
+      // Use either Redux state or local backup to get note information
+      const noteId = noteToDelete?.id || localNoteInfo?.id;
+      const noteTitle = noteToDelete?.title || localNoteInfo?.title;
+      const isArchived = noteToDelete?.archived || localNoteInfo?.archived;
       
       if (!noteId) {
         throw new Error('No note selected for deletion');
@@ -137,8 +137,38 @@ const DeleteModal = () => {
     },
   });
 
+  // Store note information locally to prevent state issues during deletion
+  const [localNoteInfo, setLocalNoteInfo] = React.useState<{
+    id?: number;
+    title?: string;
+    archived?: boolean;
+  } | null>(null);
+  
+  // Update local note info when noteToDelete changes
+  React.useEffect(() => {
+    if (noteToDelete) {
+      setLocalNoteInfo({
+        id: noteToDelete.id,
+        title: noteToDelete.title,
+        archived: noteToDelete.archived,
+      });
+    }
+  }, [noteToDelete]);
+  
   const handleDelete = () => {
-    deleteMutation.mutate();
+    // Use either the Redux state or our local backup
+    if (noteToDelete?.id || localNoteInfo?.id) {
+      console.log('Deleting note with id:', noteToDelete?.id || localNoteInfo?.id);
+      deleteMutation.mutate();
+    } else {
+      console.error('No note selected for deletion');
+      toast({
+        title: "Error",
+        description: "No note selected for deletion.",
+        variant: "destructive"
+      });
+      dispatch(closeDeleteModal());
+    }
   };
 
   return (
@@ -152,8 +182,8 @@ const DeleteModal = () => {
             Delete Note
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-600 text-center">
-            {noteToDelete 
-              ? `Are you sure you want to delete "${noteToDelete.title}"? This action cannot be undone.` 
+            {(noteToDelete?.title || localNoteInfo?.title)
+              ? `Are you sure you want to delete "${noteToDelete?.title || localNoteInfo?.title}"? This action cannot be undone.` 
               : "Are you sure you want to delete this note? This action cannot be undone."}
           </AlertDialogDescription>
         </AlertDialogHeader>
