@@ -81,15 +81,15 @@ const AllNotes = () => {
   }
 
   return (
-    <div className="px-4 py-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+    <div className="px-6 py-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         {filteredNotes.map(note => (
           <NoteCard key={note.id} note={note} />
         ))}
       </div>
 
-      {/* Floating Action Button */}
-      <div className="fixed right-8 bottom-8">
+      {/* Mobile Floating Action Button - only visible on mobile */}
+      <div className="fixed right-8 bottom-8 md:hidden">
         <Button
           onClick={handleCreateNote}
           className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-blue-300/50 dark:hover:shadow-blue-900/30"

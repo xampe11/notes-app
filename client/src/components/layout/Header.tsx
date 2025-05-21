@@ -54,21 +54,30 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="flex justify-between items-center px-4 py-3">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="flex justify-between items-center px-6 py-4">
         <div className="flex items-center">
           <Button 
             id="sidebar-toggle" 
             variant="ghost" 
             size="icon" 
-            className="p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none md:hidden"
+            className="p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none md:hidden"
             onClick={toggleSidebar}
           >
             <span className="material-icons">menu</span>
           </Button>
-          <h2 className="text-lg font-semibold text-gray-900 ml-2 md:ml-0">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 ml-2 md:ml-0">
             {location === '/' ? 'All Notes' : 'Archived Notes'}
           </h2>
+          
+          <Button 
+            onClick={() => dispatch(openNoteModal(false))}
+            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow flex items-center"
+            size="sm"
+          >
+            <span className="material-icons text-sm mr-1.5">add</span>
+            New Note
+          </Button>
         </div>
         
         {/* Mobile sidebar */}

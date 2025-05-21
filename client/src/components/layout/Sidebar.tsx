@@ -60,15 +60,7 @@ const Sidebar = () => {
           </div>
         </nav>
         
-        <div className="p-5 border-t border-gray-200 dark:border-gray-700">
-          <Button 
-            onClick={handleNewNote}
-            className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow py-2.5"
-          >
-            <span className="material-icons mr-2 text-sm">add</span>
-            New Note
-          </Button>
-        </div>
+        {/* New Note button moved to header */}
       </div>
     </aside>
   );
