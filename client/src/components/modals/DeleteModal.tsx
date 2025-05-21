@@ -24,19 +24,29 @@ const DeleteModal = () => {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!currentNote?.id) return;
+      console.log('Deleting note with ID:', currentNote.id);
       return await apiRequest(`/api/notes/${currentNote.id}`, {
         method: 'DELETE'
       });
     },
     onSuccess: () => {
+      console.log('Note deleted successfully, invalidating queries');
+      // Explicitly fetch notes again to ensure UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
+      
+      // Force refetch notes
+      queryClient.refetchQueries({ queryKey: ['/api/notes'] });
+      
       toast({
         title: "Note deleted",
         description: "Your note has been deleted successfully.",
       });
+      
+      // Close the modal
       dispatch(closeDeleteModal());
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error deleting note:', error);
       toast({
         title: "Failed to delete note",
         description: "There was an error deleting your note. Please try again.",
