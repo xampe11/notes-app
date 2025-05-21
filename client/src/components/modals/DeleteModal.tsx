@@ -110,12 +110,10 @@ const DeleteModal = () => {
       // Close the modal
       dispatch(closeDeleteModal());
       
-      // Handle archived view specific behavior
-      if (isArchived && window.location.pathname.includes('/archived')) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 300); // Add a short delay before reload
-      }
+      // For consistency, always refresh the data without reloading the page
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/notes', { archived: isArchived }] 
+      });
     },
     onError: (error: any) => {
       console.error('Error deleting note:', error);
