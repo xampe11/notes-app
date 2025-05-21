@@ -21,8 +21,10 @@ const NoteModal = () => {
 
   const createNoteMutation = useMutation({
     mutationFn: async (data: InsertNote) => {
-      const res = await apiRequest('POST', '/api/notes', data);
-      return res.json();
+      return await apiRequest('/api/notes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
@@ -43,8 +45,10 @@ const NoteModal = () => {
 
   const updateNoteMutation = useMutation({
     mutationFn: async (data: { id: number; note: Partial<Note> }) => {
-      const res = await apiRequest('PUT', `/api/notes/${data.id}`, data.note);
-      return res.json();
+      return await apiRequest(`/api/notes/${data.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data.note)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });

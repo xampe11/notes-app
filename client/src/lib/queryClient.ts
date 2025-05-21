@@ -11,6 +11,7 @@ export async function apiRequest(
   url: string,
   options: RequestInit = {}
 ): Promise<any> {
+  console.log('Making API request to:', url, 'with options:', options);
   // Get auth token if available
   const token = localStorage.getItem('auth_token');
   

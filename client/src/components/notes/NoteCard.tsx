@@ -32,8 +32,9 @@ const NoteCard = ({ note }: NoteCardProps) => {
 
   const archiveMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest('PATCH', `/api/notes/${note.id}/archive`, null);
-      return res.json();
+      return await apiRequest(`/api/notes/${note.id}/archive`, {
+        method: 'PATCH'
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
