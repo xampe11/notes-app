@@ -46,22 +46,32 @@ const AllNotes = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array(8).fill(0).map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse h-48">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-            <div className="space-y-2">
-              <div className="h-3 bg-gray-200 rounded"></div>
-              <div className="h-3 bg-gray-200 rounded"></div>
-              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+      <div className="px-4 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-5 animate-pulse h-64">
+              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4 mb-4"></div>
+              <div className="space-y-3 mt-4">
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-md w-5/6"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4"></div>
+              </div>
+              <div className="mt-6 h-5 bg-gray-200 dark:bg-gray-700 rounded-md w-1/4"></div>
+              <div className="flex justify-between mt-8 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex gap-1">
+                  <div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                </div>
+                <div className="flex space-x-2">
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-end space-x-2 mt-6">
-              <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-              <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   }
@@ -71,16 +81,18 @@ const AllNotes = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {filteredNotes.map(note => (
-        <NoteCard key={note.id} note={note} />
-      ))}
+    <div className="px-4 py-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        {filteredNotes.map(note => (
+          <NoteCard key={note.id} note={note} />
+        ))}
+      </div>
 
-      {/* Floating Action Button (Mobile) */}
-      <div className="fixed right-6 bottom-6 md:hidden">
+      {/* Floating Action Button */}
+      <div className="fixed right-8 bottom-8">
         <Button
           onClick={handleCreateNote}
-          className="w-14 h-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-colors"
+          className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-blue-300/50 dark:hover:shadow-blue-900/30"
         >
           <span className="material-icons">add</span>
         </Button>
