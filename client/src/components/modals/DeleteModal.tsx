@@ -23,35 +23,42 @@ const DeleteModal = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (!noteToDelete?.id) return;
-      console.log('Deleting note with ID:', noteToDelete.id, 'Archived:', noteToDelete.archived);
-      return await apiRequest(`/api/notes/${noteToDelete.id}`, {
-        method: 'DELETE'
-      });
-    },
-    onSuccess: () => {
-      console.log('Note deleted successfully, invalidating queries');
+      if (!noteToDelete?.id) {
+        throw new Error('No note selected for deletion');
+      }
       
-      // Invalidate all notes queries
+      console.log('Deleting note with ID:', noteToDelete.id, 'Archived:', noteToDelete.archived);
+      
+      // Get the auth token from localStorage
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      
+      // Make the DELETE request with proper authentication
+      const response = await fetch(`/api/notes/${noteToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete response not OK:', response.status, errorText);
+        throw new Error(`Failed to delete note: ${response.status} ${errorText}`);
+      }
+      
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      console.log('Note deleted successfully, server response:', data);
+      
+      // Invalidate all notes queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
       
       // Force immediate refetch of all notes queries
       queryClient.refetchQueries({ queryKey: ['/api/notes'] });
-      
-      // For archived notes, we need special handling
-      if (noteToDelete?.archived) {
-        console.log('Deleted an archived note, forcing UI refresh');
-        
-        // Force a refetch of the archived notes specifically
-        queryClient.invalidateQueries({ 
-          queryKey: ['/api/notes', { archived: true }] 
-        });
-        
-        // Force a page reload for archived view to ensure UI updates correctly
-        if (window.location.pathname.includes('/archived')) {
-          window.location.reload();
-        }
-      }
       
       toast({
         title: "Note deleted",
@@ -60,6 +67,11 @@ const DeleteModal = () => {
       
       // Close the modal
       dispatch(closeDeleteModal());
+      
+      // Reload the page if we're in the archived view and deleted an archived note
+      if (noteToDelete?.archived && window.location.pathname.includes('/archived')) {
+        window.location.reload();
+      }
     },
     onError: (error) => {
       console.error('Error deleting note:', error);
