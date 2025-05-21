@@ -79,18 +79,29 @@ export class DatabaseStorage implements IStorage {
 
   async validateUserCredentials(username: string, password: string): Promise<User | null> {
     // Find user by username
+    console.log(`Validating credentials for username: ${username}`);
     const user = await this.getUserByUsername(username);
     if (!user) {
+      console.log("User not found");
       return null;
     }
+    
+    console.log("User found, comparing passwords");
     
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    try {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log(`Password valid: ${isPasswordValid}`);
+      
+      if (!isPasswordValid) {
+        return null;
+      }
+      
+      return user;
+    } catch (error) {
+      console.error("Error comparing passwords:", error);
       return null;
     }
-    
-    return user;
   }
 
   // Notes methods
