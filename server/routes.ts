@@ -153,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/notes/:id", authenticate, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      console.log(`Attempting to delete note with ID: ${id}`);
+      console.log(`Attempting to delete note with ID: ${id}, user ID: ${req.user?.id}`);
       
       if (isNaN(id)) {
         console.log('Invalid note ID');
@@ -168,20 +168,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Note with ID ${id} not found`);
         return res.status(404).json({ message: "Note not found" });
       }
-
-      const deleted = await storage.deleteNote(id);
-      console.log(`Deletion success: ${deleted}`);
       
-      if (!deleted) {
-        console.log(`Failed to delete note with ID ${id}`);
-        return res.status(404).json({ message: "Failed to delete note" });
+      // Verify user owns this note
+      if (noteToDelete.userId !== req.user?.id) {
+        console.log(`User ${req.user?.id} attempted to delete note ${id} belonging to user ${noteToDelete.userId}`);
+        return res.status(403).json({ message: "You don't have permission to delete this note" });
       }
-      
-      console.log(`Successfully deleted note with ID ${id}`);
-      return res.json({ success: true });
+
+      // Delete note with categories
+      try {
+        // First, remove all category associations
+        const categories = await storage.getNoteCategories(id);
+        for (const category of categories) {
+          await storage.removeCategoryFromNote(id, category.id);
+        }
+        
+        // Then delete the note
+        const deleted = await storage.deleteNote(id);
+        
+        if (!deleted) {
+          console.log(`Database failed to delete note with ID ${id}`);
+          return res.status(500).json({ message: "Database error: Failed to delete note" });
+        }
+        
+        console.log(`Successfully deleted note with ID ${id}`);
+        return res.json({ success: true, message: "Note deleted successfully" });
+      } catch (err) {
+        console.error(`Error during delete operation for note ${id}:`, err);
+        return res.status(500).json({ message: "Server error during note deletion" });
+      }
     } catch (error) {
       console.error("Error deleting note:", error);
-      return res.status(500).json({ message: "Failed to delete note" });
+      return res.status(500).json({ message: "Server error: Failed to delete note" });
     }
   });
 

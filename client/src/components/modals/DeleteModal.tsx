@@ -29,27 +29,46 @@ const DeleteModal = () => {
       
       console.log('Deleting note with ID:', noteToDelete.id, 'Archived:', noteToDelete.archived);
       
-      // Get the auth token from localStorage
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        throw new Error('Authentication required');
-      }
-      
-      // Make the DELETE request with proper authentication
-      const response = await fetch(`/api/notes/${noteToDelete.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+      try {
+        // Get the auth token from localStorage
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          throw new Error('Authentication required');
         }
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Delete response not OK:', response.status, errorText);
-        throw new Error(`Failed to delete note: ${response.status} ${errorText}`);
+        
+        // Make the DELETE request with proper authentication
+        const response = await fetch(`/api/notes/${noteToDelete.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          let errorMessage = `Status: ${response.status}`;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            // If response is not JSON, try to get text
+            const errorText = await response.text();
+            errorMessage = errorText || errorMessage;
+          }
+          
+          console.error('Delete response not OK:', response.status, errorMessage);
+          throw new Error(`Failed to delete note: ${errorMessage}`);
+        }
+        
+        // Try to parse as JSON, but handle if not JSON
+        try {
+          return await response.json();
+        } catch (e) {
+          return { success: true };
+        }
+      } catch (error) {
+        console.error('Error in delete mutation:', error);
+        throw error;
       }
-      
-      return await response.json();
     },
     onSuccess: (data) => {
       console.log('Note deleted successfully, server response:', data);
@@ -73,13 +92,23 @@ const DeleteModal = () => {
         window.location.reload();
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error deleting note:', error);
+      
+      // Get a user-friendly error message
+      let errorMessage = "There was an error deleting your note. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Failed to delete note",
-        description: "There was an error deleting your note. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Close the modal even on error
+      dispatch(closeDeleteModal());
     },
   });
 
