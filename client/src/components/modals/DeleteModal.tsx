@@ -31,11 +31,23 @@ const DeleteModal = () => {
     },
     onSuccess: () => {
       console.log('Note deleted successfully, invalidating queries');
-      // Explicitly fetch notes again to ensure UI updates
+      
+      // Invalidate both regular and archived notes queries
       queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
       
-      // Force refetch notes
+      // Force refetch both regular and archived notes
       queryClient.refetchQueries({ queryKey: ['/api/notes'] });
+      
+      // Specifically invalidate archived notes queries 
+      if (currentNote?.archived) {
+        console.log('Invalidating archived notes queries');
+        queryClient.invalidateQueries({ 
+          queryKey: ['/api/notes', { archived: true }] 
+        });
+        queryClient.refetchQueries({ 
+          queryKey: ['/api/notes', { archived: true }] 
+        });
+      }
       
       toast({
         title: "Note deleted",
