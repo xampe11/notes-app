@@ -63,9 +63,34 @@ const NoteCard = ({ note }: NoteCardProps) => {
     archiveMutation.mutate();
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest(`/api/notes/${note.id}`, {
+        method: 'DELETE'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
+      toast({
+        title: "Note deleted",
+        description: "Your note has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error("Delete error:", error);
+      toast({
+        title: "Failed to delete note",
+        description: "There was an error deleting your note. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch(openDeleteModal(note));
+    if (confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
+      deleteMutation.mutate();
+    }
   };
 
   const handleCardClick = () => {
