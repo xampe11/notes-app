@@ -119,10 +119,9 @@ const NoteCard = ({ note }: NoteCardProps) => {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Show confirmation dialog using browser built-in confirm
-    if (confirm(`Are you sure you want to delete "${note.title}"? This action cannot be undone.`)) {
-      directDeleteMutation.mutate();
-    }
+    // Use the custom dialog by dispatching action with the complete note object
+    console.log('Dispatching openDeleteModal with note:', note);
+    dispatch(openDeleteModal({...note}));
   };
 
   const handleCardClick = () => {

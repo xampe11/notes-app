@@ -73,8 +73,9 @@ export const notesSlice = createSlice({
       state.currentNote = null;
     },
     openDeleteModal: (state, action: PayloadAction<Note>) => {
-      state.isDeleteModalOpen = true;
+      console.log('Opening delete modal with note:', action.payload);
       state.noteToDelete = action.payload;
+      state.isDeleteModalOpen = true;
     },
     closeDeleteModal: (state) => {
       state.isDeleteModalOpen = false;

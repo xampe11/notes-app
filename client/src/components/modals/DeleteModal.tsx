@@ -1,8 +1,8 @@
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { closeDeleteModal } from "@/redux/notesSlice";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -21,8 +21,8 @@ const DeleteModal = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Debug the noteToDelete object
-  console.log('Note to delete in modal:', noteToDelete);
+  // Log note information for debugging
+  console.log('Delete modal state:', { isOpen: isDeleteModalOpen, note: noteToDelete });
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -152,7 +152,9 @@ const DeleteModal = () => {
             Delete Note
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-600 text-center">
-            Are you sure you want to delete this note? This action cannot be undone.
+            {noteToDelete 
+              ? `Are you sure you want to delete "${noteToDelete.title}"? This action cannot be undone.` 
+              : "Are you sure you want to delete this note? This action cannot be undone."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex justify-center space-x-3">
