@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { setSearchQuery } from '@/redux/notesSlice';
+import { setSearchQuery, setViewMode } from '@/redux/notesSlice';
 import { useLocation } from 'wouter';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import {
 const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const dispatch = useDispatch();
-  const searchQuery = useSelector((state: RootState) => state.notes.searchQuery);
+  const { searchQuery, viewMode } = useSelector((state: RootState) => state.notes);
   const [location, setLocation] = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
   
@@ -178,11 +178,27 @@ const Header = () => {
         
         {/* View Toggle and User Menu */}
         <div className="flex items-center">
-          <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
-            <button className="p-1.5 text-primary bg-white rounded">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 mr-2">
+            <button 
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'grid' 
+                  ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+              }`}
+              onClick={() => dispatch(setViewMode('grid'))}
+              title="Grid view"
+            >
               <span className="material-icons text-sm">grid_view</span>
             </button>
-            <button className="p-1.5 text-gray-500 hover:text-primary rounded">
+            <button 
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'list' 
+                  ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800' 
+                  : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+              }`}
+              onClick={() => dispatch(setViewMode('list'))}
+              title="List view"
+            >
               <span className="material-icons text-sm">view_list</span>
             </button>
           </div>

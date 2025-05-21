@@ -15,6 +15,7 @@ interface NotesState {
   categories: Category[];
   selectedCategoryId: number | null;
   isCategoryModalOpen: boolean;
+  viewMode: 'grid' | 'list'; // Track the current view mode
 }
 
 const initialState: NotesState = {
@@ -31,6 +32,7 @@ const initialState: NotesState = {
   categories: [],
   selectedCategoryId: null,
   isCategoryModalOpen: false,
+  viewMode: 'grid', // Default to grid view
 };
 
 export const notesSlice = createSlice({
@@ -104,6 +106,10 @@ export const notesSlice = createSlice({
     closeCategoryModal: (state) => {
       state.isCategoryModalOpen = false;
     },
+    // Toggle between grid and list view modes
+    setViewMode: (state, action: PayloadAction<'grid' | 'list'>) => {
+      state.viewMode = action.payload;
+    },
   },
 });
 
@@ -121,6 +127,7 @@ export const {
   setSelectedCategoryId,
   openCategoryModal,
   closeCategoryModal,
+  setViewMode,
 } = notesSlice.actions;
 
 export default notesSlice.reducer;

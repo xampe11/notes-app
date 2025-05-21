@@ -10,7 +10,7 @@ import type { Note } from "@/types/schema";
 
 const AllNotes = () => {
   const dispatch = useDispatch();
-  const { filteredNotes, isLoading, searchQuery, selectedCategoryId } = useSelector((state: RootState) => state.notes);
+  const { filteredNotes, isLoading, searchQuery, selectedCategoryId, viewMode } = useSelector((state: RootState) => state.notes);
   
   const { data, error, isLoading: queryLoading } = useQuery<Note[]>({
     queryKey: ['/api/notes', { archived: false, search: searchQuery, categoryId: selectedCategoryId }],
