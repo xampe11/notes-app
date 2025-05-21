@@ -17,6 +17,14 @@ router.post('/register', async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Username and password are required' });
         }
         
+        // Check for spaces in username
+        if (username.includes(' ')) {
+            return res.status(400).json({ message: 'Username cannot contain spaces' });
+        }
+        
+        // Trim the username to ensure there are no leading/trailing spaces
+        const trimmedUsername = username.trim();
+        
         // Check if username already exists
         const existingUser = await storage.getUserByUsername(username);
         if (existingUser) {
@@ -35,7 +43,7 @@ router.post('/register', async (req: Request, res: Response) => {
         
         // Create new user
         const newUser = await storage.createUser({
-            username,
+            username: trimmedUsername, // Use the trimmed username
             password, // We'll let the storage layer handle the hashing
             email,
             name,
@@ -64,8 +72,11 @@ router.post('/login', async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Username and password are required' });
         }
         
-        // Authenticate user
-        const user = await storage.validateUserCredentials(username, password);
+        // Trim the username to ensure spaces don't affect login
+        const trimmedUsername = username.trim();
+        
+        // Authenticate user with trimmed username
+        const user = await storage.validateUserCredentials(trimmedUsername, password);
         
         if (!user) {
             return res.status(401).json({ message: 'Invalid username or password' });
