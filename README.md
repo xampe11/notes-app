@@ -9,7 +9,6 @@ A full-stack notes application with robust authentication, CRUD operations, and 
 - Archive/unarchive notes
 - Categorize notes with multiple categories
 - Filter notes by category
-- Responsive design with dark mode support
 - Grid and list view options
 
 ## Tech Stack
@@ -135,35 +134,9 @@ Then run it with:
 ./setup.sh
 ```
 
-## Manual Setup
-
-If you prefer manual setup:
-
-1. Install dependencies:
-   ```
-   npm install
-   ```
-
-2. Set up the database environment variable:
-   ```
-   export DATABASE_URL='postgresql://username:password@localhost:5432/notesapp'
-   ```
-
-3. Push the database schema:
-   ```
-   npm run db:push
-   ```
-
-4. Start the application:
-   ```
-   npm run dev
-   ```
-
-
-
 ## User Guide
 
-- **Register/Login**: Create an account or log in to access the app
+- **Register/Login**: Create an account by pressing the "sign up" button or log in to access the app
 - **Create Note**: Click the "New Note" button to create a new note
 - **Edit Note**: Click on a note card to edit its content
 - **Archive Note**: Click the archive button on a note to move it to the archive
