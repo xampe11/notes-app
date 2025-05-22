@@ -92,7 +92,23 @@ const NoteForm = ({ onSubmit, onCancel, defaultValues, noteCategories = [], isSu
     setCategoryInput("");
   };
 
-  const handleRemoveCategory = (categoryId: number) => {
+  const handleRemoveCategory = async (categoryId: number) => {
+      // Only make API call if this is an existing note being edited
+  if (defaultValues?.id) {
+    try {
+      const response = await fetch(`/api/notes/${defaultValues.id}/categories/${categoryId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to remove category from note');
+      }
+    } catch (error) {
+      console.error('Error removing category:', error);
+      // You might want to add toast notification here
+      return; // Don't remove from UI if API call fails
+    }
+  }
     setSelectedCategories(prev => prev.filter(cat => cat.id !== categoryId));
   };
 
